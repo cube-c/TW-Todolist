@@ -26,12 +26,29 @@ type: text/vnd.tiddlywiki
 
 \define todolist-add-journal-action()
   <$list filter="[<stateTiddler>getindex[itemtext]!is[blank]]" variable=ignor>
-	<$set name=item value=<<now "[UTC]YYYY0MM0DD0hh0mm0ssXXX">> >
-	<$action-setfield 
-	 $tiddler=<<taskTiddler>>
-	 $index=<<item>>
-	 $value={{{ [<stateTiddler>getindex[itemtext]] }}}
-	/>
+	<$set name=journalText value={{{ [<stateTiddler>getindex[itemtext]] }}} >
+		<!-- normal command -->
+		<$list filter="[<journalText>!prefix[/]]" variable=ignor>
+		<$set name=item value=<<now "[UTC]YYYY0MM0DD0hh0mm0ssXXX">> >
+		<$action-setfield
+		$tiddler=<<taskTiddler>>
+		$index=<<item>>
+		$value=<<journalText>>
+		/>
+		</$set>
+		</$list>
+
+		<!-- slash command for state update -->
+		<$list filter="[<journalText>split[ ]first[]removeprefix[/]]" variable=stateIndex>
+		<$list filter="[<journalText>split[ ]!is[blank]nth[2]]" variable=stateValue>
+			<!-- sticker command -->
+			<$action-setfield
+			$tiddler=<<stateTiddler>>
+			$index=<<stateIndex>>
+			$value=<<stateValue>>
+			/>
+		</$list>
+		</$list>
 	</$set>
 	<$action-setfield $tiddler=<<stateTiddler>> $index="itemtext" $value=""/>
 	</$list>
